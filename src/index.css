@@ -1,0 +1,31 @@
+html {
+  font-family: 'Roboto', sans-serif;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 10px;
+} */
+
+/* button {
+  display: block;
+  margin: 1rem auto;
+} */
+
+/* .address {
+  margin-top: 10px;
+} */

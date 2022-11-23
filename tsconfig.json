@@ -17,6 +17,8 @@
     "jsx": "react-jsx",
     // pcourant
     "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
       "@features/*": ["src/features/*"],
