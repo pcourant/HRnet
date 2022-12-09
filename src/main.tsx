@@ -4,8 +4,12 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import { appRoute } from './App';
 import './index.css';
+import server from './server/server';
 
 const router = createBrowserRouter([appRoute]);
+
+// For Dev purpose
+server();
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

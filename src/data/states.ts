@@ -1,4 +1,5 @@
-const states = [
+/* eslint-disable import/prefer-default-export */
+export const STATES_ARRAY = [
   {
     name: 'Alabama',
     abbreviation: 'AL',
@@ -236,5 +237,3 @@ const states = [
     abbreviation: 'WY',
   },
 ];
-
-export default states;

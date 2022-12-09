@@ -1,9 +1,10 @@
-const departments = [
-  'Sales',
-  'Marketing',
-  'Engineering',
-  'Human Resources',
-  'Legal',
-];
+/* eslint-disable import/prefer-default-export */
+import { Department } from 'src/services/types';
 
-export default departments;
+export const departments = [
+  Department.Sales,
+  Department.Marketing,
+  Department.Engineering,
+  Department.HR,
+  Department.Legal,
+];

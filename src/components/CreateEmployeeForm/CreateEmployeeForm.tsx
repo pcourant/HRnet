@@ -13,8 +13,9 @@ import {
 import { differenceInYears } from 'date-fns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import states from 'src/data/states';
-import departments from 'src/data/departments';
+import { STATES_ARRAY } from 'src/data/states';
+// import type { StateName, StateAbbreviation } from 'src/data/states';
+import { departments } from 'src/data/departments';
 
 // import styles from './CreateEmployeeForm.module.css';
 
@@ -188,7 +189,7 @@ function CreateEmployeeForm() {
                   onChange={handleChange}
                   onBlur={handleBlur}
                 >
-                  {states.map((state) => (
+                  {STATES_ARRAY.map((state) => (
                     <MenuItem
                       key={state.abbreviation}
                       value={state.abbreviation}
