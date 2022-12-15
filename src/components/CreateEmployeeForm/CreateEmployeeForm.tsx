@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
+import { useState } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -13,13 +13,26 @@ import {
 import { differenceInYears } from 'date-fns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { STATES_ARRAY } from 'src/data/states';
-// import type { StateName, StateAbbreviation } from 'src/data/states';
-import { departments } from 'src/data/departments';
 
-// import styles from './CreateEmployeeForm.module.css';
+import type { Department, StateAbbreviation } from '@types';
 
+import { STATES, DEPARTMENTS } from '@types';
+import { useCreateEmployee } from '@services';
+import Modal from '@components/Modal';
+
+/**
+ * Component for creating a new employee via a validated form
+ * Libraries:
+ *  - Formik for building
+ *  - Yup for validation
+ *  - Material UI for design, select and date-picker
+ * @component
+ * @returns Form to create new employee and send it to the server for saving
+ */
 function CreateEmployeeForm() {
+  const [showModal, setShowModal] = useState(false);
+  const createEmployee = useCreateEmployee();
+
   return (
     <>
       <h2>Create Employee</h2>
@@ -39,6 +52,7 @@ function CreateEmployeeForm() {
           firstName: Yup.string().required('Required'),
           lastName: Yup.string().required('Required'),
           dateOfBirth: Yup.date()
+            .typeError('Invalid date, must be : dd/mm/yyyy')
             .required('Required')
             .test(
               'legal-age-check',
@@ -52,17 +66,27 @@ function CreateEmployeeForm() {
                 return false;
               }
             ),
-          startDate: Yup.date().required('Required'),
+          startDate: Yup.date()
+            .typeError('Invalid date, must be : dd/mm/yyyy')
+            .required('Required'),
           street: Yup.string().required('Required'),
           city: Yup.string().required('Required'),
           zipcode: Yup.number().required('Required'),
           state: Yup.string().required('Required'),
           department: Yup.string().required('Required'),
         })}
-        onSubmit={(values, { setSubmitting }) => {
-          // eslint-disable-next-line no-alert
-          alert(JSON.stringify(values, null, 2));
-          setSubmitting(false);
+        onSubmit={(values) => {
+          createEmployee.mutate({
+            firstName: values.firstName,
+            lastName: values.lastName,
+            dateOfBirth: new Date(values.dateOfBirth),
+            startDate: new Date(values.startDate),
+            street: values.street,
+            city: values.city,
+            zipcode: +values.zipcode,
+            state: values.state as StateAbbreviation,
+            department: values.department as Department,
+          });
         }}
       >
         {({
@@ -112,6 +136,7 @@ function CreateEmployeeForm() {
                 renderInput={(params) => (
                   <TextField
                     fullWidth
+                    // eslint-disable-next-line react/jsx-props-no-spreading
                     {...params}
                     error={touched.dateOfBirth && Boolean(errors.dateOfBirth)}
                     helperText={touched.dateOfBirth && errors.dateOfBirth}
@@ -132,6 +157,7 @@ function CreateEmployeeForm() {
                 renderInput={(params) => (
                   <TextField
                     fullWidth
+                    // eslint-disable-next-line react/jsx-props-no-spreading
                     {...params}
                     error={touched.startDate && Boolean(errors.startDate)}
                     helperText={touched.startDate && errors.startDate}
@@ -189,12 +215,9 @@ function CreateEmployeeForm() {
                   onChange={handleChange}
                   onBlur={handleBlur}
                 >
-                  {STATES_ARRAY.map((state) => (
-                    <MenuItem
-                      key={state.abbreviation}
-                      value={state.abbreviation}
-                    >
-                      {state.name}
+                  {Object.entries(STATES).map(([abbr, name]) => (
+                    <MenuItem key={abbr} value={abbr}>
+                      {name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -235,9 +258,9 @@ function CreateEmployeeForm() {
                 onChange={handleChange}
                 onBlur={handleBlur}
               >
-                {departments.map((department) => (
-                  <MenuItem key={department} value={department}>
-                    {department}
+                {Object.values(DEPARTMENTS).map((value) => (
+                  <MenuItem key={value} value={value}>
+                    {value}
                   </MenuItem>
                 ))}
               </Select>
@@ -253,7 +276,7 @@ function CreateEmployeeForm() {
               fullWidth
               variant="contained"
               size="large"
-              disabled={isSubmitting}
+              disabled={isSubmitting && createEmployee.isLoading}
               type="submit"
             >
               Save
@@ -261,6 +284,16 @@ function CreateEmployeeForm() {
           </Form>
         )}
       </Formik>
+      <button type="button" onClick={() => setShowModal(true)}>
+        Show Modal
+      </button>
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        title="My Modal"
+      >
+        <p>This is modal body</p>
+      </Modal>
     </>
   );
 }

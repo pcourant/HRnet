@@ -1,17 +1,34 @@
+import { Server } from 'miragejs';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {
-  BrowserRouter,
-  createMemoryRouter,
-  RouterProvider,
-} from 'react-router-dom';
-import { appRoute } from 'src/App';
 import { describe, expect, it } from 'vitest';
+
+import { appRoute } from 'src/App';
+import MockServer from 'src/MockServer';
+import {
+  wrapperQueryClient,
+  wrapperRouterAndQueryClient,
+} from '@tests/test-utils';
+
 import EmployeeList from './EmployeeList';
+
+let server: Server;
+
+beforeEach(() => {
+  server = MockServer();
+});
+
+afterEach(() => {
+  server.shutdown();
+});
 
 describe('EmployeeList component', () => {
   beforeEach(() => {
-    render(<EmployeeList />, { wrapper: BrowserRouter });
+    render(<EmployeeList />, {
+      wrapper: wrapperRouterAndQueryClient,
+    });
   });
 
   it('should render without crash', () => {});
@@ -28,7 +45,9 @@ describe('EmployeeList integration tests', () => {
     const router = createMemoryRouter([appRoute], {
       initialEntries: ['/employee-list'],
     });
-    render(<RouterProvider router={router} />);
+    render(<RouterProvider router={router} />, {
+      wrapper: wrapperQueryClient,
+    });
   });
 
   describe('When I click on Home link', () => {

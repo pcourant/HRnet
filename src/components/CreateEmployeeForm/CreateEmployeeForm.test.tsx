@@ -1,9 +1,11 @@
 import { render, screen } from '@testing-library/react';
+
+import { wrapperQueryClient } from '@tests/test-utils';
 import CreateEmployeeForm from './CreateEmployeeForm';
 
 describe('CreateEmployeeForm component', () => {
   beforeEach(() => {
-    render(<CreateEmployeeForm />);
+    render(<CreateEmployeeForm />, { wrapper: wrapperQueryClient });
   });
 
   it('should render without crash', () => {});

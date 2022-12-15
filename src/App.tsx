@@ -1,32 +1,30 @@
 import { Outlet, RouteObject } from 'react-router-dom';
-import StyledEngineProvider from '@mui/material/StyledEngineProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import NotFound from '@pages/NotFound';
-import Home from '@pages/Home/Home';
-import EmployeeList from '@pages/EmployeeList/EmployeeList';
+import Home from '@pages/Home';
+import EmployeeList from '@pages/EmployeeList';
 
 type AppProps = {
   children?: React.ReactNode;
 };
 
 const queryClient = new QueryClient();
+
+/**
+ * App component
+ * @component
+ */
 function App({ children }: AppProps) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <StyledEngineProvider injectFirst>
-        {/* <header>header</header> */}
-        {children}
-        {/* <footer>footer</footer> */}
-      </StyledEngineProvider>
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 }
 App.defaultProps = {
   children: undefined,
 };
 
-export const appRoute: RouteObject = {
+const appRoute: RouteObject = {
   path: '/',
   element: (
     <App>
@@ -36,7 +34,6 @@ export const appRoute: RouteObject = {
   errorElement: (
     <App>
       <NotFound />
-      employee-list
     </App>
   ),
   children: [
@@ -45,4 +42,4 @@ export const appRoute: RouteObject = {
   ],
 };
 
-export default App;
+export default appRoute;

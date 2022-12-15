@@ -1,5 +1,10 @@
 import { Link } from 'react-router-dom';
 
+/**
+ * Display not found 404 error page
+ * @component
+ * @returns not found 404 error page
+ */
 function NotFound() {
   return (
     <>

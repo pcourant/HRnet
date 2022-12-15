@@ -1,6 +1,11 @@
-import EmployeesTable from '@components/EmployeesTable/EmployeesTable';
+import EmployeesTable from '@components/EmployeesTable';
 import { Link } from 'react-router-dom';
 
+/**
+ * Display the page showing table of employees
+ * @component
+ * @returns employee list page
+ */
 function EmployeeList() {
   return (
     <div id="employee-div" className="container">

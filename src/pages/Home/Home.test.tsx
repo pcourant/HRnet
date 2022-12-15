@@ -1,17 +1,27 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {
-  BrowserRouter,
-  createMemoryRouter,
-  RouterProvider,
-} from 'react-router-dom';
-import { appRoute } from 'src/App';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
+
+import { wrapperRouterAndQueryClient } from 'src/__TESTS__/test-utils';
+import { appRoute } from 'src/App';
+import MockServer from 'src/MockServer/MockServer';
+import { Server } from 'miragejs';
 import Home from './Home';
+
+let server: Server;
+
+beforeEach(() => {
+  server = MockServer();
+});
+
+afterEach(() => {
+  server.shutdown();
+});
 
 describe('Home component', () => {
   beforeEach(() => {
-    render(<Home />, { wrapper: BrowserRouter });
+    render(<Home />, { wrapper: wrapperRouterAndQueryClient });
   });
 
   it('should render without crash', () => {});
