@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -18,7 +17,7 @@ import type { Department, StateAbbreviation } from '@types';
 
 import { STATES, DEPARTMENTS } from '@types';
 import { useCreateEmployee } from '@services';
-import Modal from '@components/Modal';
+// import Modal from '@components/Modal';
 
 /**
  * Component for creating a new employee via a validated form
@@ -30,7 +29,7 @@ import Modal from '@components/Modal';
  * @returns Form to create new employee and send it to the server for saving
  */
 function CreateEmployeeForm() {
-  const [showModal, setShowModal] = useState(false);
+  // const [showModal, setShowModal] = useState(false);
   const createEmployee = useCreateEmployee();
 
   return (
@@ -284,7 +283,7 @@ function CreateEmployeeForm() {
           </Form>
         )}
       </Formik>
-      <button type="button" onClick={() => setShowModal(true)}>
+      {/* <button type="button" onClick={() => setShowModal(true)}>
         Show Modal
       </button>
       <Modal
@@ -293,7 +292,7 @@ function CreateEmployeeForm() {
         title="My Modal"
       >
         <p>This is modal body</p>
-      </Modal>
+      </Modal> */}
     </>
   );
 }
