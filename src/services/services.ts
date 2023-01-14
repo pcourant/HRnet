@@ -8,6 +8,7 @@ import type {
   QueryOptionsInterface,
 } from '@types';
 
+import { AxiosResponse } from 'axios';
 import ENDPOINTS from './endpoints';
 import client from './lib/axios';
 
@@ -170,7 +171,10 @@ export const usePrefetchEmployees = (
  * @param onSuccess - callback function called on success
  * @returns a mutation to create data on server
  */
-export const useCreateEmployee = (onSuccess?: (id: string) => void) => {
+export const useCreateEmployee = (
+  onSuccess?: (data: AxiosResponse) => void,
+  onError?: (err: unknown) => void
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -178,8 +182,11 @@ export const useCreateEmployee = (onSuccess?: (id: string) => void) => {
       return client.post(`/employees`, employee);
     },
     onSuccess: (data) => {
-      if (onSuccess) onSuccess(data?.data?.id);
+      if (onSuccess) onSuccess(data);
       queryClient.invalidateQueries(['employees']);
+    },
+    onError: (err) => {
+      if (onError) onError(err);
     },
   });
 };

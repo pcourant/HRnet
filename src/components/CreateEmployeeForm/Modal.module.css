@@ -1,0 +1,44 @@
+.overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.modal {
+  /* width: 500px; */
+  background: #fff;
+  border-radius: 4px;
+}
+
+.modalBody {
+  margin: 0;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.firstLine:last-child {
+  margin: 0.5rem 1rem 1rem 1rem;
+}
+.lastLine p:first-child {
+  margin: 1rem 1rem 0.5rem 1rem;
+}
+
+.modalFooter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px 10px 10px;
+}
+
+.modalFooter button:last-child {
+  margin-top: 10px;
+}

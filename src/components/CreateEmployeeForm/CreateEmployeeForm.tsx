@@ -17,7 +17,12 @@ import type { Department, StateAbbreviation } from '@types';
 
 import { STATES, DEPARTMENTS } from '@types';
 import { useCreateEmployee } from '@services';
-// import Modal from '@components/Modal';
+import { Modal } from 'react-modal-simple-customizable';
+import { useCallback, useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+import styles from './Modal.module.css';
 
 /**
  * Component for creating a new employee via a validated form
@@ -29,8 +34,30 @@ import { useCreateEmployee } from '@services';
  * @returns Form to create new employee and send it to the server for saving
  */
 function CreateEmployeeForm() {
-  // const [showModal, setShowModal] = useState(false);
-  const createEmployee = useCreateEmployee();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const onClickViewCurrentEmployees = useCallback(
+    () => navigate('/employee-list', { replace: true }),
+    [navigate]
+  );
+
+  const onCloseSuccessHandler = () => setShowSuccessModal(false);
+  const onCloseErrorHandler = () => setShowErrorModal(false);
+  const onSuccessHandler = () => setShowSuccessModal(true);
+  const onErrorHandler = (err: unknown) => {
+    if (axios.isAxiosError(err)) {
+      setError(err?.response?.data?.error);
+    } else if (err instanceof Error) {
+      setError(err?.message);
+    } else {
+      setError('Unknown error, look in the devTool console');
+    }
+    setShowErrorModal(true);
+  };
+  const createEmployee = useCreateEmployee(onSuccessHandler, onErrorHandler);
 
   return (
     <>
@@ -96,6 +123,7 @@ function CreateEmployeeForm() {
           isSubmitting,
           handleChange,
           handleBlur,
+          handleReset,
         }) => (
           <Form>
             <TextField
@@ -280,19 +308,71 @@ function CreateEmployeeForm() {
             >
               Save
             </Button>
+            <Modal
+              show={showSuccessModal}
+              onClose={onCloseSuccessHandler}
+              className={styles.modal}
+              overlayClassName={styles.overlay}
+            >
+              <div className={styles.modalBody}>
+                <p>Employee created!</p>
+              </div>
+              <div className={styles.modalFooter}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  type="button"
+                  onClick={() => {
+                    onCloseSuccessHandler();
+                    handleReset();
+                  }}
+                >
+                  Create another employee
+                </Button>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  type="button"
+                  onClick={onClickViewCurrentEmployees}
+                >
+                  View current employees
+                </Button>
+              </div>
+            </Modal>
+            <Modal
+              show={showErrorModal}
+              onClose={onCloseErrorHandler}
+              className={styles.modal}
+              overlayClassName={styles.overlay}
+            >
+              <div className={styles.modalBody}>
+                <p className="firstLine">Error!</p>
+                <p className="lastLine">{error}</p>
+              </div>
+              <div className={styles.modalFooter}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  type="button"
+                  onClick={onCloseErrorHandler}
+                >
+                  Try again
+                </Button>
+                <Button
+                  variant="contained"
+                  size="large"
+                  type="button"
+                  onClick={onClickViewCurrentEmployees}
+                >
+                  View current employees
+                </Button>
+              </div>
+            </Modal>
           </Form>
         )}
       </Formik>
-      {/* <button type="button" onClick={() => setShowModal(true)}>
-        Show Modal
-      </button>
-      <Modal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        title="My Modal"
-      >
-        <p>This is modal body</p>
-      </Modal> */}
     </>
   );
 }
