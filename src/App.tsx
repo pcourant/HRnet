@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
  * App component
  * @component
  */
-function App({ children }: AppProps) {
+export function App({ children }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );

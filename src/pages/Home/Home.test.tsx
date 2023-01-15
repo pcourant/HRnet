@@ -4,7 +4,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import { wrapperRouterAndQueryClient } from 'src/__TESTS__/test-utils';
-import { appRoute } from 'src/App';
+import appRoute from 'src/App';
 import MockServer from 'src/MockServer/MockServer';
 import { Server } from 'miragejs';
 import Home from './Home';

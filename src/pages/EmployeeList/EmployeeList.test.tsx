@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
-import { appRoute } from 'src/App';
+import appRoute from 'src/App';
 import MockServer from 'src/MockServer';
 import {
   wrapperQueryClient,
