@@ -25,7 +25,7 @@ App.defaultProps = {
 };
 
 const appRoute: RouteObject = {
-  path: '/',
+  path: import.meta.env.BASE_URL,
   element: (
     <App>
       <Outlet />

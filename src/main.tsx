@@ -6,11 +6,11 @@ import appRoute from './App';
 import './index.css';
 import MockServer from './MockServer';
 
-console.log('hello word');
-
-MockServer();
-
-console.log('after MockServer');
+if (import.meta.env.MODE === 'development') {
+  // eslint-disable-next-line no-console
+  console.log('Mocking server...');
+  MockServer();
+}
 
 const router = createBrowserRouter([appRoute]);
 

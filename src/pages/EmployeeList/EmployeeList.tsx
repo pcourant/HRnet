@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 function EmployeeList() {
   return (
     <div id="employee-div" className="container">
-      <Link to="/">Home</Link>
+      <Link to={import.meta.env.BASE_URL}>Home</Link>
       <h1>Current Employees</h1>
       <EmployeesTable />
     </div>

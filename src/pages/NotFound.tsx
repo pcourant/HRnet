@@ -9,7 +9,7 @@ function NotFound() {
   return (
     <>
       <h1>Not Found</h1>
-      <Link to="/">GO HOME</Link>
+      <Link to={import.meta.env.BASE_URL}>GO HOME</Link>
     </>
   );
 }
