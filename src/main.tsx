@@ -6,7 +6,11 @@ import appRoute from './App';
 import './index.css';
 import MockServer from './MockServer';
 
+console.log('hello word');
+
 MockServer();
+
+console.log('after MockServer');
 
 const router = createBrowserRouter([appRoute]);
 
