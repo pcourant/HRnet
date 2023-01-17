@@ -25,20 +25,16 @@ App.defaultProps = {
 };
 
 const appRoute: RouteObject = {
-  path: import.meta.env.BASE_URL,
+  path: '/',
   element: (
     <App>
       <Outlet />
     </App>
   ),
-  errorElement: (
-    <App>
-      <NotFound />
-    </App>
-  ),
   children: [
     { path: '', element: <Home /> },
     { path: 'employee-list', element: <EmployeeList /> },
+    { path: '*', element: <NotFound /> },
   ],
 };
 
