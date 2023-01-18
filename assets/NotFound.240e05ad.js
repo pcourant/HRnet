@@ -1,0 +1,1 @@
+import{j as n,F as o,a as r,L as e}from"./index.bf2bc840.js";function a(){return n(o,{children:[r("h1",{children:"404 Error"}),r("h1",{children:"Not Found"}),r(e,{to:"/PierreCourant_14_14112022/",children:"GO HOME"})]})}export{a as default};
