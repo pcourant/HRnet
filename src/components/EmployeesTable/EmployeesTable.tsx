@@ -188,37 +188,37 @@ function EmployeesTable() {
     const confirmationMessages = [];
     if (newRow?.firstName !== oldRow?.firstName) {
       confirmationMessages.push(
-        `First name from '${oldRow?.firstName}' to '${newRow?.firstName}'`
+        `- First name from '${oldRow?.firstName}' to '${newRow?.firstName}'`
       );
     }
     if (newRow?.lastName !== oldRow?.lastName) {
       confirmationMessages.push(
-        `Last name from '${oldRow?.lastName}' to '${newRow?.lastName}'`
+        `- Last name from '${oldRow?.lastName}' to '${newRow?.lastName}'`
       );
     }
     if (newRow?.department !== oldRow?.department) {
       confirmationMessages.push(
-        `Department from '${oldRow?.department}' to '${newRow?.department}'`
+        `- Department from '${oldRow?.department}' to '${newRow?.department}'`
       );
     }
     if (newRow?.street !== oldRow?.street) {
       confirmationMessages.push(
-        `Street from '${oldRow?.street}' to '${newRow?.street}'`
+        `- Street from '${oldRow?.street}' to '${newRow?.street}'`
       );
     }
     if (newRow?.city !== oldRow?.city) {
       confirmationMessages.push(
-        `City from '${oldRow?.city}' to '${newRow?.city}'`
+        `- City from '${oldRow?.city}' to '${newRow?.city}'`
       );
     }
     if (newRow?.state !== oldRow?.state) {
       confirmationMessages.push(
-        `State from '${oldRow?.state}' to '${newRow?.state}'`
+        `- State from '${oldRow?.state}' to '${newRow?.state}'`
       );
     }
     if (newRow?.zipcode !== oldRow?.zipcode) {
       confirmationMessages.push(
-        `Zip Code from '${oldRow?.zipcode}' to '${newRow?.zipcode}'`
+        `- Zip Code from '${oldRow?.zipcode}' to '${newRow?.zipcode}'`
       );
     }
     return confirmationMessages;
@@ -246,16 +246,16 @@ function EmployeesTable() {
     setShowModalEdit(false);
   };
   const onSuccessEditHandler = (employee: Employee) => {
-    setShowModalEdit(false);
     setModalResult('edit');
     setShowModalResult(true);
+    setShowModalEdit(false);
     editRowData?.resolve(employee);
     setEditRowData(null);
   };
   const onErrorEditHandler = (err: unknown) => {
-    setShowModalEdit(false);
     setModalResult('edit');
     setShowModalResult(true);
+    setShowModalEdit(false);
     if (axios.isAxiosError(err)) {
       if (err?.response?.data?.error) setError(err?.response?.data?.error);
       else if (err?.message) setError(err?.message);
@@ -437,13 +437,17 @@ function EmployeesTable() {
       >
         <div className={styles.modalBody}>
           <h2>Are you sure?</h2>
-          <p>{`Pressing 'Yes' will change:`}</p>
-          {computeConfirmationMessages(
-            editRowData?.newRow,
-            editRowData?.oldRow
-          )?.map((val) => (
-            <p key={val}>{val}</p>
-          ))}
+          <h3>{`Pressing 'Yes' will change:`}</h3>
+          <ul className={styles.listOfChanges}>
+            {computeConfirmationMessages(
+              editRowData?.newRow,
+              editRowData?.oldRow
+            )?.map((val) => (
+              <li key={val}>
+                <p>{val}</p>
+              </li>
+            ))}
+          </ul>
         </div>
         <div className={styles.modalFooter}>
           <Button
@@ -511,10 +515,10 @@ function EmployeesTable() {
             </>
           )}
           {modalResult === 'edit' && updateEmployeeMutation.isSuccess && (
-            <p className={styles.lastLine}>Employee successfully updated!</p>
+            <p className={styles.firstLine}>Employee successfully updated!</p>
           )}
           {modalResult === 'delete' && deleteEmployeeMutation.isSuccess && (
-            <p className={styles.lastLine}>Employee successfully deleted!</p>
+            <p className={styles.firstLine}>Employee successfully deleted!</p>
           )}
         </div>
         <div className={styles.modalFooter}>

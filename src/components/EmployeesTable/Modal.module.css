@@ -12,11 +12,10 @@
 }
 
 .modal {
-  /* width: 500px; */
   background: #fff;
   border-radius: 4px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 25px;
+  padding-right: 25px;
 }
 
 .modalBody {
@@ -27,10 +26,10 @@
 }
 
 .firstLine {
-  margin: 0.5rem 1rem 1rem 1rem;
+  margin: 1rem 1rem 0.5rem 1rem;
 }
 .lastLine {
-  margin: 1rem 1rem 0.5rem 1rem;
+  margin: 0.5rem 1rem 1rem 1rem;
 }
 
 .modalFooter {
@@ -38,9 +37,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 10px 10px 10px;
+  padding: 0 0 10px 0;
 }
 
 .modalFooter button:last-child {
   margin-top: 10px;
+}
+
+.listOfChanges {
+  text-align: left;
+  padding-left: 0;
 }

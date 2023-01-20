@@ -13,6 +13,7 @@
 
 body {
   font-family: 'Roboto', sans-serif;
+  padding-bottom: 25px;
 }
 
 .title {
@@ -31,4 +32,18 @@ body {
 .table {
   width: 90%;
   max-width: 1280px;
+}
+
+a {
+  text-decoration: none;
+  color: #1976d2;
+}
+
+a:hover {
+  color: #1575ce;
+  text-decoration: underline;
+}
+
+li {
+  list-style: none;
 }
