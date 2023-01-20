@@ -1,9 +1,10 @@
 import { Outlet, RouteObject } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import loadable from '@loadable/component';
 
-import NotFound from '@pages/NotFound';
-import Home from '@pages/Home';
-import EmployeeList from '@pages/EmployeeList';
+const NotFound = loadable(() => import('@pages/NotFound'));
+const Home = loadable(() => import('@pages/Home'));
+const EmployeeList = loadable(() => import('@pages/EmployeeList'));
 
 type AppProps = {
   children?: React.ReactNode;
@@ -32,9 +33,18 @@ const appRoute: RouteObject = {
     </App>
   ),
   children: [
-    { path: '', element: <Home /> },
-    { path: 'employee-list', element: <EmployeeList /> },
-    { path: '*', element: <NotFound /> },
+    {
+      path: '',
+      element: <Home />,
+    },
+    {
+      path: 'employee-list',
+      element: <EmployeeList />,
+    },
+    {
+      path: '*',
+      element: <NotFound />,
+    },
   ],
 };
 

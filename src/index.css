@@ -1,4 +1,17 @@
-html {
+@font-face {
+  font-family: 'Roboto';
+  src: url('/fonts/Roboto-Regular.ttf') format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto';
+  src: url('/fonts/Roboto-Bold.ttf') format('ttf');
+  font-weight: bold;
+  font-style: normal;
+}
+
+body {
   font-family: 'Roboto', sans-serif;
 }
 
@@ -15,17 +28,7 @@ html {
   justify-content: center;
 }
 
-/* label {
-  display: block;
-  margin-top: 1rem;
-  margin-bottom: 10px;
-} */
-
-/* button {
-  display: block;
-  margin: 1rem auto;
-} */
-
-/* .address {
-  margin-top: 10px;
-} */
+.table {
+  width: 90%;
+  max-width: 1280px;
+}

@@ -1,10 +1,7 @@
-/* eslint-disable no-console */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, LinearProgress } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Close';
-import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
+import { Box, Button, LinearProgress } from '@mui/material';
+import { Edit, Save, Cancel, Delete } from '@mui/icons-material';
 import {
   DataGrid,
   GridRowId,
@@ -17,18 +14,19 @@ import {
   MuiEvent,
   GridEventListener,
 } from '@mui/x-data-grid';
+import { Modal } from 'react-modal-simple-customizable';
 
+import type { Employee, QueryOptionsInterface } from '@types';
 import {
   useDeleteEmployee,
   useEmployees,
   usePrefetchEmployees,
   useUpdateEmployee,
 } from '@services';
-
-import type { Employee, QueryOptionsInterface } from '@types';
-
 import { Footer, NoRowsOverlay, Toolbar } from './TableComponents';
 import { COLUMNS } from './utils';
+
+import styles from './Modal.module.css';
 
 /**
  * Fetch data from the server and display the dynamic MUI Table of employees
@@ -36,19 +34,52 @@ import { COLUMNS } from './utils';
  * @returns Table of employees
  */
 function EmployeesTable() {
+  // * Pagination states ***************************************************
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(0);
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  // ***********************************************************************
 
-  // * Workaround to fix pagination MUI bug ************************
+  // * Edit and delete states ***************************************
+  const [editRowData, setEditRowData] = useState<{
+    oldRow: Employee;
+    newRow: Employee;
+    resolve: (value: Employee | PromiseLike<Employee>) => void;
+    reject: (reason?: unknown) => void;
+  } | null>(null);
+  const [deleteId, setDeleteId] = useState<GridRowId>('');
+  // ****************************************************************
+
+  // * Modal states *************************************************
+  const [showModalEdit, setShowModalEdit] = useState(false);
+  const [showModalDelete, setShowModalDelete] = useState(false);
+  const [showModalResult, setShowModalResult] = useState(false);
+  const [modalResult, setModalResult] = useState('');
+  const [error, setError] = useState('');
+  // ****************************************************************
+
+  // * States for workaround to fix pagination MUI bug *************
   const [previousPageSize, setPreviousPageSize] = useState(0);
   const [previousPage, setPreviousPage] = useState(0);
   const [fetchEnabled, setFetchEnabled] = useState(true);
   // ***************************************************************
 
+  // * Fetching data ********************************************************
   const [queryOptions, setQueryOptions] = useState<QueryOptionsInterface>({
     sortModel: [{ field: 'firstname', sort: 'asc' }],
     filterModel: { items: [], quickFilterValues: [] },
   });
+
+  const { isLoading, data } = useEmployees(
+    page,
+    pageSize,
+    fetchEnabled,
+    queryOptions
+  );
+  const rowCount = data?.total ? data?.total : 0;
+  const rows = data?.employees ? data.employees : [];
+  usePrefetchEmployees(page, pageSize, rowCount, queryOptions);
+  // *************************************************************************
 
   const onFilterChange = useCallback((filterModel: GridFilterModel) => {
     if (filterModel?.quickFilterValues) {
@@ -68,21 +99,49 @@ function EmployeesTable() {
     }
   }, []);
 
-  const { isLoading, data } = useEmployees(
-    page,
-    pageSize,
-    fetchEnabled,
-    queryOptions
+  // * Deleting data ***********************************************************
+  const onSuccessDeleteHandler = () => {
+    setShowModalDelete(false);
+    setModalResult('delete');
+    setShowModalResult(true);
+  };
+  const onErrorDeleteHandler = (err: unknown) => {
+    setShowModalDelete(false);
+    setModalResult('delete');
+    setShowModalResult(true);
+    if (axios.isAxiosError(err)) {
+      if (err?.response?.data?.error) setError(err?.response?.data?.error);
+      else if (err?.message) setError(err?.message);
+    } else if (err instanceof Error) {
+      setError(err?.message);
+    } else {
+      setError('Unknown error, look in the devTool console');
+    }
+    editRowData?.reject(editRowData?.oldRow);
+    setEditRowData(null);
+  };
+  const deleteEmployeeMutation = useDeleteEmployee(
+    onSuccessDeleteHandler,
+    onErrorDeleteHandler
   );
-  const rowCount = data?.total ? data?.total : 0;
-  const rows = data?.employees ? data.employees : [];
-  usePrefetchEmployees(page, pageSize, rowCount, queryOptions);
+  const onDeleteConfirmHandler = () => {
+    deleteEmployeeMutation.mutate(deleteId.toString());
+  };
 
-  const deleteEmployeeMutation = useDeleteEmployee();
-  const updateEmployeeMutation = useUpdateEmployee();
+  const handleDeleteClick = useCallback(
+    (id: GridRowId) => () => {
+      // Type narrowing
+      if (typeof id === 'number') {
+        throw new Error('ID of deleted employee should be of type string');
+      }
+      setDeleteId(id);
+      setShowModalDelete(true);
+    },
+    []
+  );
+  // **************************************************************************
 
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-
+  // * Editing data ***********************************************************
   const handleRowEditStart = (
     params: GridRowParams,
     event: MuiEvent<React.SyntheticEvent>
@@ -90,7 +149,6 @@ function EmployeesTable() {
     // eslint-disable-next-line no-param-reassign
     event.defaultMuiPrevented = true;
   };
-
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (
     params,
     event
@@ -98,14 +156,12 @@ function EmployeesTable() {
     // eslint-disable-next-line no-param-reassign
     event.defaultMuiPrevented = true;
   };
-
   const handleEditClick = useCallback(
     (id: GridRowId) => () => {
       setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
     },
     [rowModesModel]
   );
-
   const handleCancelClick = useCallback(
     (id: GridRowId) => () => {
       setRowModesModel({
@@ -115,37 +171,127 @@ function EmployeesTable() {
     },
     [rowModesModel]
   );
-
   const handleSaveClick = useCallback(
     (id: GridRowId) => () => {
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+      setRowModesModel({
+        ...rowModesModel,
+        [id]: { mode: GridRowModes.View },
+      });
     },
     [rowModesModel]
   );
 
-  const processRowUpdate = (newRow: Employee) => {
-    // eslint-disable-next-line no-alert
-    if (window.confirm('Do you really want to modify this employee ?')) {
-      updateEmployeeMutation.mutate(newRow);
+  function computeConfirmationMessages(
+    newRow: Employee | undefined,
+    oldRow: Employee | undefined
+  ) {
+    const confirmationMessages = [];
+    if (newRow?.firstName !== oldRow?.firstName) {
+      confirmationMessages.push(
+        `First name from '${oldRow?.firstName}' to '${newRow?.firstName}'`
+      );
     }
-    return newRow;
-  };
-
-  const handleDeleteClick = useCallback(
-    (id: GridRowId) => () => {
-      // Type narrowing
-      if (typeof id === 'number') {
-        throw new Error('ID of deleted employee should be of type string');
-      }
-      // eslint-disable-next-line no-alert
-      if (window.confirm('Do you really want to delete this employee ?')) {
-        deleteEmployeeMutation.mutate(id);
-      }
-    },
-    [deleteEmployeeMutation]
+    if (newRow?.lastName !== oldRow?.lastName) {
+      confirmationMessages.push(
+        `Last name from '${oldRow?.lastName}' to '${newRow?.lastName}'`
+      );
+    }
+    if (newRow?.department !== oldRow?.department) {
+      confirmationMessages.push(
+        `Department from '${oldRow?.department}' to '${newRow?.department}'`
+      );
+    }
+    if (newRow?.street !== oldRow?.street) {
+      confirmationMessages.push(
+        `Street from '${oldRow?.street}' to '${newRow?.street}'`
+      );
+    }
+    if (newRow?.city !== oldRow?.city) {
+      confirmationMessages.push(
+        `City from '${oldRow?.city}' to '${newRow?.city}'`
+      );
+    }
+    if (newRow?.state !== oldRow?.state) {
+      confirmationMessages.push(
+        `State from '${oldRow?.state}' to '${newRow?.state}'`
+      );
+    }
+    if (newRow?.zipcode !== oldRow?.zipcode) {
+      confirmationMessages.push(
+        `Zip Code from '${oldRow?.zipcode}' to '${newRow?.zipcode}'`
+      );
+    }
+    return confirmationMessages;
+  }
+  const processRowUpdate = useCallback(
+    (newRow: Employee, oldRow: Employee) =>
+      new Promise<Employee>((resolve, reject) => {
+        const confirmationMessages = computeConfirmationMessages(
+          newRow,
+          oldRow
+        );
+        if (confirmationMessages.length === 0) {
+          resolve(oldRow); // Nothing was changed
+        } else {
+          // Save the editing data to resolve or reject the promise later
+          setEditRowData({ resolve, reject, newRow, oldRow });
+          setShowModalEdit(true);
+        }
+      }),
+    []
   );
+  const onCancelEditHandler = () => {
+    editRowData?.reject(editRowData?.oldRow);
+    setEditRowData(null);
+    setShowModalEdit(false);
+  };
+  const onSuccessEditHandler = (employee: Employee) => {
+    setShowModalEdit(false);
+    setModalResult('edit');
+    setShowModalResult(true);
+    editRowData?.resolve(employee);
+    setEditRowData(null);
+  };
+  const onErrorEditHandler = (err: unknown) => {
+    setShowModalEdit(false);
+    setModalResult('edit');
+    setShowModalResult(true);
+    if (axios.isAxiosError(err)) {
+      if (err?.response?.data?.error) setError(err?.response?.data?.error);
+      else if (err?.message) setError(err?.message);
+    } else if (err instanceof Error) {
+      setError(err?.message);
+    } else {
+      setError('Unknown error, look in the devTool console');
+    }
+    editRowData?.reject(editRowData?.oldRow);
+    setEditRowData(null);
+  };
+  const updateEmployeeMutation = useUpdateEmployee(
+    onSuccessEditHandler,
+    onErrorEditHandler
+  );
+  const onEditConfirmHandler = async () => {
+    if (editRowData) {
+      const { newRow, oldRow } = editRowData;
 
-  // * Add a action column for deleting and editing
+      updateEmployeeMutation.mutate({
+        id: oldRow?.id,
+        firstName: newRow?.firstName,
+        lastName: newRow?.lastName,
+        dateOfBirth: oldRow?.dateOfBirth,
+        startDate: oldRow?.startDate,
+        street: newRow?.street,
+        city: newRow?.city,
+        zipcode: newRow?.zipcode,
+        state: newRow?.state,
+        department: newRow?.department,
+      });
+    }
+  };
+  // **************************************************************************
+
+  // * Add a action column for deleting and editing ***************************
   const columns = useMemo(
     () => [
       ...COLUMNS,
@@ -165,13 +311,13 @@ function EmployeesTable() {
             return [
               <GridActionsCellItem
                 key={`${id}_save`}
-                icon={<SaveIcon />}
+                icon={<Save />}
                 label="Save"
                 onClick={handleSaveClick(id)}
               />,
               <GridActionsCellItem
                 key={`${id}_cancel`}
-                icon={<CancelIcon />}
+                icon={<Cancel />}
                 label="Cancel"
                 className="textPrimary"
                 onClick={handleCancelClick(id)}
@@ -183,7 +329,7 @@ function EmployeesTable() {
           return [
             <GridActionsCellItem
               key={`${id}_save`}
-              icon={<EditIcon />}
+              icon={<Edit />}
               label="Edit"
               className="textPrimary"
               onClick={handleEditClick(id)}
@@ -191,7 +337,7 @@ function EmployeesTable() {
             />,
             <GridActionsCellItem
               key={`${id}_cancel`}
-              icon={<DeleteIcon />}
+              icon={<Delete />}
               label="Delete"
               onClick={handleDeleteClick(id)}
               color="inherit"
@@ -208,75 +354,183 @@ function EmployeesTable() {
       rowModesModel,
     ]
   );
+  // **************************************************************************
 
+  // ! Workaround to to fix pagination MUI bug ********************************
   const handlePageSizeChange = (newPageSize: number) => {
-    // * Workaround to fix pagination MUI bug ****
     setFetchEnabled(false);
     setPreviousPageSize(pageSize);
     setPreviousPage(page);
-    // *******************************************
 
     setPageSize(newPageSize);
   };
 
-  // * Workaround to to fix pagination MUI bug ****************
   useEffect(() => {
     const previousRow = previousPage * previousPageSize;
-    const fixedPage = Math.floor(previousRow / pageSize);
+    const newPageFixed = Math.floor(previousRow / pageSize);
     setFetchEnabled(true);
-    setPage(fixedPage);
+    setPage(newPageFixed);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize]);
-  // **********************************************************
+  // ! ************************************************************************
 
   return (
-    <Box sx={{ width: '90%', maxWidth: 1280 }}>
-      <DataGrid
-        rows={rows}
-        rowCount={rowCount}
-        loading={isLoading}
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        pagination
-        page={page}
-        pageSize={pageSize}
-        paginationMode="server"
-        onPageChange={(newPage: number) => setPage(newPage)}
-        onPageSizeChange={handlePageSizeChange}
-        columns={columns}
-        autoHeight
-        getRowHeight={() => 'auto'}
-        disableColumnFilter
-        disableColumnSelector
-        disableDensitySelector
-        disableColumnMenu
-        components={{
-          LoadingOverlay: LinearProgress,
-          Toolbar,
-          NoRowsOverlay,
-          Footer: Footer(rowCount),
-        }}
-        sortingMode="server"
-        filterMode="server"
-        onSortModelChange={onSortChange}
-        onFilterModelChange={onFilterChange}
-        editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-        onRowEditStart={handleRowEditStart}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        experimentalFeatures={{ newEditingApi: true }}
-        sx={{
-          '&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell': { py: '8px' },
-          '&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell': {
-            py: '15px',
-          },
-          '&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell': {
-            py: '22px',
-          },
-        }}
-      />
-    </Box>
+    <>
+      {/* DATA GRID ************************************************************ */}
+      <Box sx={{ width: '90%', maxWidth: 1280 }}>
+        <DataGrid
+          rows={rows}
+          rowCount={rowCount}
+          loading={isLoading}
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          pagination
+          page={page}
+          pageSize={pageSize}
+          paginationMode="server"
+          onPageChange={(newPage: number) => setPage(newPage)}
+          onPageSizeChange={handlePageSizeChange}
+          columns={columns}
+          autoHeight
+          getRowHeight={() => 'auto'}
+          disableColumnFilter
+          disableColumnSelector
+          disableDensitySelector
+          disableColumnMenu
+          components={{
+            LoadingOverlay: LinearProgress,
+            Toolbar,
+            NoRowsOverlay,
+            Footer: Footer(rowCount),
+          }}
+          sortingMode="server"
+          filterMode="server"
+          onSortModelChange={onSortChange}
+          onFilterModelChange={onFilterChange}
+          editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+          onRowEditStart={handleRowEditStart}
+          onRowEditStop={handleRowEditStop}
+          processRowUpdate={processRowUpdate}
+          onProcessRowUpdateError={() => {}}
+          experimentalFeatures={{ newEditingApi: true }}
+          sx={{
+            '&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell': {
+              py: '8px',
+            },
+            '&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell': {
+              py: '15px',
+            },
+            '&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell': {
+              py: '22px',
+            },
+          }}
+        />
+      </Box>
+      {/* ************************************************************************** */}
+      {/* MODALS ******************************************************************* */}
+      <Modal
+        show={showModalEdit}
+        onClose={onCancelEditHandler}
+        className={styles.modal}
+        overlayClassName={styles.overlay}
+      >
+        <div className={styles.modalBody}>
+          <h2>Are you sure?</h2>
+          <p>{`Pressing 'Yes' will change:`}</p>
+          {computeConfirmationMessages(
+            editRowData?.newRow,
+            editRowData?.oldRow
+          )?.map((val) => (
+            <p key={val}>{val}</p>
+          ))}
+        </div>
+        <div className={styles.modalFooter}>
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            type="button"
+            onClick={onEditConfirmHandler}
+          >
+            YES
+          </Button>
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            type="button"
+            onClick={onCancelEditHandler}
+          >
+            CANCEL
+          </Button>
+        </div>
+      </Modal>
+      <Modal
+        show={showModalDelete}
+        onClose={() => setShowModalDelete(false)}
+        className={styles.modal}
+        overlayClassName={styles.overlay}
+      >
+        <div className={styles.modalBody}>
+          <h2>Are you sure?</h2>
+          <p>{`Pressing 'Yes' will delete the employee from the DB server!`}</p>
+        </div>
+        <div className={styles.modalFooter}>
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            type="button"
+            onClick={onDeleteConfirmHandler}
+          >
+            YES
+          </Button>
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            type="button"
+            onClick={() => setShowModalDelete(false)}
+          >
+            CANCEL
+          </Button>
+        </div>
+      </Modal>
+      <Modal
+        show={showModalResult}
+        onClose={() => setShowModalResult(false)}
+        className={styles.modal}
+        overlayClassName={styles.overlay}
+      >
+        <div className={styles.modalBody}>
+          {updateEmployeeMutation.isError && (
+            <>
+              <p className={styles.firstLine}>Error!</p>
+              <p className={styles.lastLine}>{error}</p>
+            </>
+          )}
+          {modalResult === 'edit' && updateEmployeeMutation.isSuccess && (
+            <p className={styles.lastLine}>Employee successfully updated!</p>
+          )}
+          {modalResult === 'delete' && deleteEmployeeMutation.isSuccess && (
+            <p className={styles.lastLine}>Employee successfully deleted!</p>
+          )}
+        </div>
+        <div className={styles.modalFooter}>
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            type="button"
+            onClick={() => setShowModalResult(false)}
+          >
+            CLOSE
+          </Button>
+        </div>
+      </Modal>
+      {/* ************************************************************************** */}
+    </>
   );
 }
 

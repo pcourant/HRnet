@@ -71,7 +71,6 @@ export const COLUMNS: GridColumns = [
     field: 'startDate',
     headerName: 'Start Date',
     description: 'Start Date',
-    editable: true,
     ...dateType,
   },
   {
@@ -86,7 +85,6 @@ export const COLUMNS: GridColumns = [
     field: 'dateOfBirth',
     headerName: 'Date of Birth',
     description: 'Date of Birth',
-    editable: true,
     ...dateType,
   },
   {
@@ -106,7 +104,13 @@ export const COLUMNS: GridColumns = [
     minWidth: 100,
     flex: 50,
   },
-  { field: 'state', headerName: 'State', description: 'State', width: 60 },
+  {
+    field: 'state',
+    headerName: 'State',
+    description: 'State',
+    editable: true,
+    width: 60,
+  },
   {
     type: 'number',
     field: 'zipcode',

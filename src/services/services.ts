@@ -196,7 +196,10 @@ export const useCreateEmployee = (
  * @param onSuccess - callback function called on success
  * @returns a mutation to delete data on server
  */
-export const useDeleteEmployee = (onSuccess?: (id: string) => void) => {
+export const useDeleteEmployee = (
+  onSuccess?: (id: string) => void,
+  onError?: (err: unknown) => void
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -207,6 +210,9 @@ export const useDeleteEmployee = (onSuccess?: (id: string) => void) => {
       if (onSuccess) onSuccess(id);
       queryClient.invalidateQueries(['employees']);
     },
+    onError: (err) => {
+      if (onError) onError(err);
+    },
   });
 };
 
@@ -215,7 +221,10 @@ export const useDeleteEmployee = (onSuccess?: (id: string) => void) => {
  * @param onSuccess - callback function called on success
  * @returns a mutation to update data on server
  */
-export const useUpdateEmployee = (onSuccess?: (id: string) => void) => {
+export const useUpdateEmployee = (
+  onSuccess?: (employee: Employee) => void,
+  onError?: (err: unknown) => void
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -223,8 +232,11 @@ export const useUpdateEmployee = (onSuccess?: (id: string) => void) => {
       return client.put(`/employees/${employee.id}`, employee);
     },
     onSuccess: (_data, employee) => {
-      if (onSuccess) onSuccess(employee.id);
+      if (onSuccess) onSuccess(employee);
       queryClient.invalidateQueries(['employees']);
+    },
+    onError: (err) => {
+      if (onError) onError(err);
     },
   });
 };
