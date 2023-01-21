@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 /// <reference types="vite/client" />
 
 import { defineConfig } from 'vite';
@@ -9,9 +8,4 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   base: `/PierreCourant_14_14112022/`,
   plugins: [react(), tsconfigPaths()],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/setupTests.ts'],
-  },
 });
