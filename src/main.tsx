@@ -5,11 +5,12 @@ import { createHashRouter, RouterProvider } from 'react-router-dom';
 import appRoute from './App';
 import './index.css';
 
-// * Comment below for performance testing ******
-import MockServer from './MockServer';
-
-MockServer();
-// * ********************************************
+if (import.meta.env.MODE === 'production')
+  import('./MockServer').then((MockServer) => MockServer.default());
+if (import.meta.env.MODE === 'development')
+  import('./MockServer').then((MockServer) => MockServer.default());
+if (import.meta.env.MODE === 'test')
+  import('./MockServer').then((MockServer) => MockServer.default());
 
 const router = createHashRouter([appRoute]);
 
