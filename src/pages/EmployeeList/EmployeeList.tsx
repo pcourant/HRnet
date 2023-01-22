@@ -1,4 +1,4 @@
-import EmployeesTable from '@components/EmployeesTable';
+import { EmployeesTable } from '@components';
 import { Link } from 'react-router-dom';
 
 /**

@@ -1,8 +1,8 @@
-import CreateEmployeeForm from '@components/CreateEmployeeForm';
+import { CreateEmployeeForm } from '@components';
 import { Link } from 'react-router-dom';
 
 import { useEmployees } from '@services';
-import { queryOptionsInit } from '@types';
+import { useQueryOptions } from '@hooks';
 
 /**
  * Display Home page with create employee form
@@ -10,7 +10,11 @@ import { queryOptionsInit } from '@types';
  */
 function Home() {
   // * Prefetch the first employees to anticipate employee-list page
-  useEmployees(0, 10, true, queryOptionsInit);
+  const { queryOptions } = useQueryOptions({
+    sortModel: [{ field: 'firstname', sort: 'asc' }],
+    filterModel: { items: [], quickFilterValues: [] },
+  });
+  useEmployees(0, 10, true, queryOptions);
 
   return (
     <>

@@ -1,3 +1,5 @@
+import { Dispatch, useCallback, useMemo, useState } from 'react';
+import { Cancel, Delete, Edit, Save } from '@mui/icons-material';
 import {
   Box,
   MenuItem,
@@ -7,20 +9,178 @@ import {
   styled,
 } from '@mui/material';
 import {
+  GridActionsCellItem,
   gridPageCountSelector,
   gridPageSelector,
   gridPageSizeSelector,
+  GridRowId,
+  GridRowModes,
+  GridRowModesModel,
   GridToolbarContainer,
   GridToolbarQuickFilter,
   useGridApiContext,
   useGridSelector,
 } from '@mui/x-data-grid';
 
+import { Employee } from '@types';
+import { ActionCRUD } from 'src/hooks/useReducerCRUD';
+import { COLUMNS } from '../utils';
+
 /**
- * Display a Select for the User to choose the number of rows per page
- * @component
+ * A custom hook that adds CRUD (Create, Read, Update, Delete) functionality to a DataGrid component in a React application using Material-UI library.
+ * It uses the React Hooks `useState` and `useCallback` to manage the state and behavior of the DataGrid.
+ * @param {Dispatch<ActionCRUD>} dispatch - The dispatch function provided by the context store.
+ * @returns {Object} columns - An array of columns with an added actions column
+ * @returns {string} deleteId - The id of the row that is to be deleted
+ * @returns {GridRowModesModel} rowModesModel - An object that contains the current mode of each row in the DataGrid
+ * @returns {Function} setRowModesModel - A function that updates the rowModesModel state
  */
-function SelectRowsPerPage() {
+export function useCRUDactionsColumn(dispatchCRUD: Dispatch<ActionCRUD>) {
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+
+  /**
+   * A callback function that updates the row mode to "Edit" when the update button is clicked.
+   * @param {GridRowId} id - the id of the row that is being updated
+   * @returns {Function} - A function that updates the rowModesModel state
+   */
+  const handleUpdateClick = useCallback(
+    (id: GridRowId) => () => {
+      setRowModesModel({
+        ...rowModesModel,
+        [id]: { mode: GridRowModes.Edit },
+      });
+    },
+    [rowModesModel]
+  );
+
+  /**
+   * A callback function that updates the row mode to "View" and ignore modifications when the cancel button is clicked.
+   * @param {GridRowId} id - the id of the row that is being canceled
+   * @returns {Function} - A function that updates the rowModesModel state
+   */
+  const handleCancelClick = useCallback(
+    (id: GridRowId) => () => {
+      setRowModesModel({
+        ...rowModesModel,
+        [id]: { mode: GridRowModes.View, ignoreModifications: true },
+      });
+    },
+    [rowModesModel]
+  );
+
+  /**
+   * A callback function that updates the row mode to "View" when the save button is clicked.
+   * @param {GridRowId} id - the id of the row that is being saved
+   * @returns {Function} - A function that updates the rowModesModel state
+   */
+  const handleSaveClick = useCallback(
+    (id: GridRowId) => () => {
+      setRowModesModel({
+        ...rowModesModel,
+        [id]: { mode: GridRowModes.View },
+      });
+    },
+    [rowModesModel]
+  );
+
+  const handleDeleteClick = useCallback(
+    (id: GridRowId) => () => {
+      // Type narrowing
+      if (typeof id === 'number') {
+        throw new Error('ID of deleted employee should be of type string');
+      }
+      // setDeleteId(id);
+      // setShowModalDelete(true);
+      // dispatchCRUD({ type: 'SHOW_DELETE' });
+      dispatchCRUD({
+        type: 'CONFIRM_DELETE',
+        payload: {
+          result: { type: 'DELETE', error: undefined },
+          rowUpdateData: null,
+          rowDeleteId: id,
+        },
+      });
+    },
+    [dispatchCRUD]
+  );
+
+  /**
+   * A memoized array of columns that includes an actions column that allows the user to perform CRUD operations.
+   * The actions column is added to the COLUMNS array.
+   * @returns {Array} - An array of columns with an added actions column
+   */
+  const columns = useMemo(
+    () => [
+      ...COLUMNS,
+      {
+        field: 'actions',
+        type: 'actions',
+        headerName: 'Actions',
+        cellClassName: 'actions',
+        // width: 10,
+        width: 100,
+        minWidth: 30,
+        getActions: (params: Employee) => {
+          const { id } = params;
+          const isInUpdateMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+
+          if (isInUpdateMode) {
+            return [
+              <GridActionsCellItem
+                key={`${id}_save`}
+                icon={<Save />}
+                label="Save"
+                onClick={handleSaveClick(id)}
+              />,
+              <GridActionsCellItem
+                key={`${id}_cancel`}
+                icon={<Cancel />}
+                label="Cancel"
+                className="textPrimary"
+                onClick={handleCancelClick(id)}
+                color="inherit"
+              />,
+            ];
+          }
+
+          return [
+            <GridActionsCellItem
+              key={`${id}_save`}
+              icon={<Edit />}
+              label="Edit"
+              className="textPrimary"
+              onClick={handleUpdateClick(id)}
+              color="inherit"
+            />,
+            <GridActionsCellItem
+              key={`${id}_cancel`}
+              icon={<Delete />}
+              label="Delete"
+              onClick={handleDeleteClick(id)}
+              color="inherit"
+            />,
+          ];
+        },
+      },
+    ],
+    [
+      handleCancelClick,
+      handleDeleteClick,
+      handleUpdateClick,
+      handleSaveClick,
+      rowModesModel,
+    ]
+  );
+
+  return { columns, rowModesModel, setRowModesModel };
+}
+
+/**
+ * A functional component that allows the user to select the number of rows to be displayed per page in a grid.
+ * The component has a select field that shows the current number of rows per page and allows the user to change it.
+ * @returns {JSX.Element} - The JSX markup for the SelectRowsPerPage component
+ */
+function SelectRowsPerPage(): JSX.Element {
   const apiRef = useGridApiContext();
   const rowsPerPage = useGridSelector(apiRef, gridPageSizeSelector);
 
@@ -58,10 +218,12 @@ function SelectRowsPerPage() {
 }
 
 /**
- * Custom Toolbar display on top of the Table
+ * A functional component that represents a toolbar for a grid.
+ * The component contains the SelectRowsPerPage component and the GridToolbarQuickFilter component.
+ * @returns {JSX.Element} - The JSX markup for the Toolbar component
  * @component
  */
-export function Toolbar() {
+export function Toolbar(): JSX.Element {
   return (
     <GridToolbarContainer
       sx={{
@@ -78,10 +240,12 @@ export function Toolbar() {
 }
 
 /**
- * Custom MUI Data-Grid pagination
+ * A functional component that represents a custom pagination for a grid.
+ * It displays the current page and the total number of pages in the grid using the Pagination component.
+ * @returns {JSX.Element} - The JSX markup for the CustomPagination component
  * @component
  */
-function CustomPagination() {
+function CustomPagination(): JSX.Element {
   const apiRef = useGridApiContext();
   const page = useGridSelector(apiRef, gridPageSelector);
   const pageCount = useGridSelector(apiRef, gridPageCountSelector);
@@ -97,11 +261,11 @@ function CustomPagination() {
 }
 
 /**
- * Show the rows span currently displayed in the table
- * @component
- * @param rowCount Total number of rows in the table
+ * A functional component that represents a message displaying the number of displayed entries in a grid.
+ * @param {number} rowCount - The total number of rows
+ * @returns {JSX.Element} - The JSX markup for the ShowEntries component
  */
-function ShowEntries(rowCount: number) {
+function ShowEntries(rowCount: number): JSX.Element {
   const apiRef = useGridApiContext();
   const page = useGridSelector(apiRef, gridPageSelector);
   const rowsPerPage = useGridSelector(apiRef, gridPageSizeSelector);
@@ -118,6 +282,12 @@ function ShowEntries(rowCount: number) {
   return <p>{`Showing ${firstRow} to ${lastRow} of ${rowCount} entries`}</p>;
 }
 
+/**
+ * A functional component that represents the footer of a grid.
+ * The component uses the ShowEntries and CustomPagination components to display the number of displayed entries and the pagination controls.
+ * @param {number} rowCount - The total number of rows
+ * @returns {Function} - The JSX markup for the Footer component
+ */
 export const Footer = (rowCount: number) =>
   function FooterFn() {
     return (
@@ -135,6 +305,12 @@ export const Footer = (rowCount: number) =>
     );
   };
 
+/**
+ * StyledGridOverlay is a styled component that provides styles for a grid overlay.
+ * It is used to display a message when there is no data to show in the grid.
+ * @param {Object} theme - The theme object passed by the theme provider.
+ * @returns {Object} The styles to be applied to the grid overlay element.
+ */
 const StyledGridOverlay = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -161,8 +337,8 @@ const StyledGridOverlay = styled('div')(({ theme }) => ({
 }));
 
 /**
- * Custom image to show when there is no row to be displayed
- * @component
+ * Renders an overlay when there are no rows in the grid.
+ * The overlay displays a svg icon with a message that there are no rows to display
  */
 export function NoRowsOverlay() {
   return (

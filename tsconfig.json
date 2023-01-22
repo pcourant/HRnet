@@ -21,13 +21,11 @@
     "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      "@features/*": ["src/features/*"],
-      "@components/*": ["src/components/*"],
-      "@assets/*": ["src/assets/*"],
       "@pages/*": ["src/pages/*"],
+      "@components": ["src/components"],
       "@types": ["src/types"],
       "@services": ["src/services"],
-      "@utils/*": ["src/utils/*"]
+      "@hooks": ["src/hooks"]
     }
   },
   "include": ["vite.config.ts", ".eslintrc.cjs", "src"],

@@ -1,3 +1,5 @@
+// import { GridFilterModel, GridSortModel } from '@mui/x-data-grid';
+
 import { GridFilterModel, GridSortModel } from '@mui/x-data-grid';
 
 export type ChildrenProps = {
@@ -101,8 +103,3 @@ export interface QueryOptionsInterface {
   sortModel: GridSortModel;
   filterModel: GridFilterModel;
 }
-
-export const queryOptionsInit: QueryOptionsInterface = {
-  sortModel: [{ field: 'firstname', sort: 'asc' }],
-  filterModel: { items: [], quickFilterValues: [] },
-};
