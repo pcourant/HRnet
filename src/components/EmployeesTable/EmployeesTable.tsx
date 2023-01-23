@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { Box, Button, LinearProgress } from '@mui/material';
 import {
   DataGrid,
@@ -23,9 +23,9 @@ import {
   Toolbar,
   useCRUDactionsColumn,
 } from './TableComponents';
+import { computeConfirmationMessages, usePagination } from './utils';
 
 import styles from './Modal.module.css';
-import { computeConfirmationMessages } from './utils';
 
 /**
  * Fetch data from the server and display the dynamic MUI Table of employees
@@ -34,15 +34,8 @@ import { computeConfirmationMessages } from './utils';
  */
 function EmployeesTable() {
   // * Pagination states ****************************************************
-  const [pageSize, setPageSize] = useState(10);
-  const [page, setPage] = useState(0);
-  // ************************************************************************
-
-  // ! States for workaround to fix pagination MUI bug **********************
-  const [previousPageSize, setPreviousPageSize] = useState(0);
-  const [previousPage, setPreviousPage] = useState(0);
-  const [fetchEnabled, setFetchEnabled] = useState(true);
-  // ! ************************************************************************
+  const [paginationData, handlePageSizeChange] = usePagination();
+  const { pageSize, page, setPage, fetchEnabled } = paginationData;
 
   // * CRUD states **********************************************************
   const { stateCRUD, dispatchCRUD } = useReducerCRUD();
@@ -113,7 +106,6 @@ function EmployeesTable() {
   // *************************************************************************
 
   // * Updating handlers *****************************************************
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const onRowEditStartHandler = useCallback(
     (params: GridRowParams, event: MuiEvent<React.SyntheticEvent>) => {
       // eslint-disable-next-line no-param-reassign
@@ -121,12 +113,13 @@ function EmployeesTable() {
     },
     []
   );
-  const onRowEditStopHandler: GridEventListener<'rowEditStop'> =
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useCallback((params, event) => {
+  const onRowEditStopHandler: GridEventListener<'rowEditStop'> = useCallback(
+    (params, event) => {
       // eslint-disable-next-line no-param-reassign
       event.defaultMuiPrevented = true;
-    }, []);
+    },
+    []
+  );
 
   const processRowUpdate = useCallback(
     (newRow: Employee, oldRow: Employee) =>
@@ -155,11 +148,6 @@ function EmployeesTable() {
     if (rowUpdateData?.reject) rowUpdateData?.reject(rowUpdateData?.oldRow);
     dispatchCRUD({
       type: 'CANCEL',
-      payload: {
-        result: null,
-        rowUpdateData: null,
-        rowDeleteId: null,
-      },
     });
   };
 
@@ -210,24 +198,6 @@ function EmployeesTable() {
     }
   };
   // **************************************************************************
-
-  // ! Workaround to to fix pagination MUI bug ********************************
-  const handlePageSizeChange = (newPageSize: number) => {
-    setFetchEnabled(false);
-    setPreviousPageSize(pageSize);
-    setPreviousPage(page);
-
-    setPageSize(newPageSize);
-  };
-
-  useEffect(() => {
-    const previousRow = previousPage * previousPageSize;
-    const newPageFixed = Math.floor(previousRow / pageSize);
-    setFetchEnabled(true);
-    setPage(newPageFixed);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageSize]);
-  // ! ************************************************************************
 
   return (
     <>

@@ -1,3 +1,4 @@
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import {
   GridColTypeDef,
   GridColumns,
@@ -5,6 +6,43 @@ import {
   GridValueGetterParams,
 } from '@mui/x-data-grid';
 import { Employee } from '@types';
+
+interface PageData {
+  pageSize: number;
+  page: number;
+  setPage: Dispatch<SetStateAction<number>>;
+  fetchEnabled: boolean;
+}
+
+export const usePagination = (
+  initialPageSize = 10,
+  initialPage = 0
+): [PageData, (newPageSize: number) => void] => {
+  const [pageSize, setPageSize] = useState(initialPageSize);
+  const [page, setPage] = useState(initialPage);
+
+  const [previousPageSize, setPreviousPageSize] = useState(0);
+  const [previousPage, setPreviousPage] = useState(0);
+  const [fetchEnabled, setFetchEnabled] = useState(true);
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setFetchEnabled(false);
+    setPreviousPageSize(pageSize);
+    setPreviousPage(page);
+
+    setPageSize(newPageSize);
+  };
+
+  useEffect(() => {
+    const previousRow = previousPage * previousPageSize;
+    const newPageFixed = Math.floor(previousRow / pageSize);
+    setFetchEnabled(true);
+    setPage(newPageFixed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageSize]);
+
+  return [{ pageSize, page, setPage, fetchEnabled }, handlePageSizeChange];
+};
 
 /**
  * @param {string} date1 - The first date to compare
