@@ -16,16 +16,17 @@ import {
   useUpdateEmployee,
 } from '@services';
 import { useQueryOptions, useReducerCRUD } from '@hooks';
-import computeErrorFromQuery from 'src/utils';
+import computeErrorFromQuery from '@utils';
 import {
   Footer,
   NoRowsOverlay,
   Toolbar,
   useCRUDactionsColumn,
 } from './TableComponents';
-import { computeConfirmationMessages, usePagination } from './utils';
+import { computeConfirmationMessages } from './utils';
 
 import styles from './Modal.module.css';
+import usePagination from './hooks';
 
 /**
  * Fetch data from the server and display the dynamic MUI Table of employees
@@ -33,11 +34,12 @@ import styles from './Modal.module.css';
  * @returns Table of employees
  */
 function EmployeesTable() {
-  // * Pagination states ****************************************************
+  // * Pagination states *****************************************************
   const [paginationData, handlePageSizeChange] = usePagination();
   const { pageSize, page, setPage, fetchEnabled } = paginationData;
+  // *************************************************************************
 
-  // * CRUD states **********************************************************
+  // * CRUD states ***********************************************************
   const { stateCRUD, dispatchCRUD } = useReducerCRUD();
   const {
     showModalUpdate,

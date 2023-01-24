@@ -103,3 +103,38 @@ export interface QueryOptionsInterface {
   sortModel: GridSortModel;
   filterModel: GridFilterModel;
 }
+
+export interface StateCRUD {
+  showModalCreate: boolean;
+  showModalUpdate: boolean;
+  showModalDelete: boolean;
+  showModalResult: boolean;
+  result: {
+    type: 'CREATE' | 'UPDATE' | 'DELETE' | undefined;
+    error: string | undefined;
+  } | null;
+  rowUpdateData: {
+    oldRow: Employee | undefined;
+    newRow: Employee | undefined;
+    resolve:
+      | ((value: Employee | PromiseLike<Employee>) => void | undefined)
+      | undefined;
+    reject: ((reason?: unknown) => void | undefined) | undefined;
+  } | null;
+  rowDeleteId: string | null | undefined;
+}
+
+export interface ActionCRUD {
+  type:
+    | 'CANCEL'
+    | 'CONFIRM_UPDATE'
+    | 'CONFIRM_DELETE'
+    | 'CONFIRM_CREATE'
+    | 'SHOW_RESULT'
+    | 'INIT';
+  payload?: {
+    result: StateCRUD['result'];
+    rowUpdateData: StateCRUD['rowUpdateData'];
+    rowDeleteId: StateCRUD['rowDeleteId'];
+  };
+}

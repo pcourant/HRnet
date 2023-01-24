@@ -1,48 +1,11 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import {
   GridColTypeDef,
   GridColumns,
   GridComparatorFn,
   GridValueGetterParams,
 } from '@mui/x-data-grid';
+
 import { Employee } from '@types';
-
-interface PageData {
-  pageSize: number;
-  page: number;
-  setPage: Dispatch<SetStateAction<number>>;
-  fetchEnabled: boolean;
-}
-
-export const usePagination = (
-  initialPageSize = 10,
-  initialPage = 0
-): [PageData, (newPageSize: number) => void] => {
-  const [pageSize, setPageSize] = useState(initialPageSize);
-  const [page, setPage] = useState(initialPage);
-
-  const [previousPageSize, setPreviousPageSize] = useState(0);
-  const [previousPage, setPreviousPage] = useState(0);
-  const [fetchEnabled, setFetchEnabled] = useState(true);
-
-  const handlePageSizeChange = (newPageSize: number) => {
-    setFetchEnabled(false);
-    setPreviousPageSize(pageSize);
-    setPreviousPage(page);
-
-    setPageSize(newPageSize);
-  };
-
-  useEffect(() => {
-    const previousRow = previousPage * previousPageSize;
-    const newPageFixed = Math.floor(previousRow / pageSize);
-    setFetchEnabled(true);
-    setPage(newPageFixed);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageSize]);
-
-  return [{ pageSize, page, setPage, fetchEnabled }, handlePageSizeChange];
-};
 
 /**
  * @param {string} date1 - The first date to compare
@@ -171,6 +134,13 @@ export const COLUMNS: GridColumns = [
   },
 ];
 
+/**
+ * Computes the confirmation messages of the changes made to an employee.
+ *
+ * @param {Employee | undefined} newRow - The new employee data.
+ * @param {Employee | undefined} oldRow - The original employee data.
+ * @returns {string[]} An array of strings representing the confirmation messages.
+ */
 export function computeConfirmationMessages(
   newRow: Employee | undefined,
   oldRow: Employee | undefined

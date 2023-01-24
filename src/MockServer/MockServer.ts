@@ -1,23 +1,27 @@
-import { createServer, Factory, Model, Response } from 'miragejs';
+import { createServer, Factory, Model, Response, Server } from 'miragejs';
 import { faker } from '@faker-js/faker';
 import { GridSortDirection } from '@mui/x-data-grid';
 
 import type { Employee, StateAbbreviation } from '@types';
-
 import { DEPARTMENTS, STATES } from '@types';
 
-// * environment = production | development | test
+// environment = production | development | test
 const environment = import.meta.env.MODE;
 const namespace = import.meta.env.VITE_API_URL;
-//* DATABASE_LENGTH : Number of employees in the DB
+// DATABASE_LENGTH : Number of employees in the DB
 const DATABASE_LENGTH = +import.meta.env.VITE_DATABASE_LENGTH;
 const SERVER_PAGE_SIZE = +import.meta.env.VITE_PAGE_LENGTH;
 
 /**
- * Create a mock server with API
- * @returns server
+ * @function
+ * @name MockServer
+ * @returns {Server} - A server instance with employees model and factory.
+ * @description
+ * The function creates a server instance with an employees model and factory.
+ * The server is seeded with a list of employees with a certain length.
+ * The server has routes that handle pagination, filtering, and sorting of the employees data.
  */
-function MockServer() {
+function MockServer(): Server {
   return createServer({
     environment,
 

@@ -1,12 +1,13 @@
-import { CreateEmployeeForm } from '@components';
 import { Link } from 'react-router-dom';
 
+import { CreateEmployeeForm } from '@components';
 import { useEmployees } from '@services';
 import { useQueryOptions } from '@hooks';
 
 /**
  * Display Home page with create employee form
- * @returns home page
+ * @returns {React.ReactElement} home page
+ * @component
  */
 function Home() {
   // * Prefetch the first employees to anticipate employee-list page

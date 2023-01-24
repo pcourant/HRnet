@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
+import { AxiosResponse } from 'axios';
 import { GridSortDirection } from '@mui/x-data-grid';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
 
 import type {
   Employee,
@@ -8,7 +9,6 @@ import type {
   QueryOptionsInterface,
 } from '@types';
 
-import { AxiosResponse } from 'axios';
 import ENDPOINTS from './endpoints';
 import client from './lib/axios';
 
@@ -99,11 +99,13 @@ export const useEmployees = (
 
 /**
  * Prefetch all the client side reachable pages (first, last, previous and next)
- * @param currentPage
- * @param pageSize
- * @param totalEmployees
- * @param queryOptions
+ * @param {number} currentPage - The current page of the employee list.
+ * @param {number} pageSize - The number of employees to be displayed per page.
+ * @param {number} totalEmployees - The total number of employees in the list.
+ * @param {QueryOptionsInterface} queryOptions - The options used to filter and sort the employee list.
+ * @description Hook to prefetch the employees data on the pages that will be displayed soon.
  */
+
 export const usePrefetchEmployees = (
   currentPage: number,
   pageSize: number,
@@ -167,9 +169,18 @@ export const usePrefetchEmployees = (
 };
 
 /**
- * Custom hooks for creating an employee in the database
- * @param onSuccess - callback function called on success
- * @returns a mutation to create data on server
+ * useCreateEmployee is a hook that allows you to handle the creation of employees.
+ *
+ * @param {(data: AxiosResponse) => void} [onSuccess] - callback function to be called on successful creation of employee.
+ * @param {(err: unknown) => void} [onError] - callback function to be called on error during the creation of employee.
+ *
+ * @returns {MutationFunctionResult<AxiosResponse, unknown>} - An object that contains the result of the mutation.
+ *
+ * @example
+ * const { status, data, error } = useCreateEmployee(
+ *  (data) => { console.log(data) },
+ *  (err) => { console.log(err) }
+ * );
  */
 export const useCreateEmployee = (
   onSuccess?: (data: AxiosResponse) => void,
@@ -192,9 +203,13 @@ export const useCreateEmployee = (
 };
 
 /**
- * Custom hooks for deleting an employee in the database
- * @param onSuccess - callback function called on success
- * @returns a mutation to delete data on server
+ * Custom hook for performing a delete mutation on an employee using the provided id.
+ * @param {(id: string) => void} onSuccess - callback function to be executed upon a successful deletion
+ * @param {(err: unknown) => void} onError - callback function to be executed upon an error during the deletion
+ * @returns {MutationTuple<unknown, unknown, unknown>} - a tuple containing the mutate function and the result of the mutation
+ * @example
+ * const { mutate } = useDeleteEmployee(id => console.log(id), err => console.log(err));
+ * mutate("some-employee-id");
  */
 export const useDeleteEmployee = (
   onSuccess?: (id: string) => void,
@@ -217,9 +232,10 @@ export const useDeleteEmployee = (
 };
 
 /**
- * Custom hooks for updating an employee in the database
- * @param onSuccess - callback function called on success
- * @returns a mutation to update data on server
+ * Custom hook that exposes a mutation function that allows to update an Employee in the server.
+ * @param {(employee: Employee) => void} [onSuccess] - Callback function that will be called when the request succeed.
+ * @param {(err: unknown) => void} [onError] - Callback function that will be called when the request failed.
+ * @returns {UseMutationResult<Employee>} - an object that contains the function to execute the mutation and the state of the mutation
  */
 export const useUpdateEmployee = (
   onSuccess?: (employee: Employee) => void,

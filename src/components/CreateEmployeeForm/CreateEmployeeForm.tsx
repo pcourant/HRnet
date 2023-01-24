@@ -19,19 +19,18 @@ import { Modal } from 'react-modal-simple-customizable';
 import { Department, StateAbbreviation, STATES, DEPARTMENTS } from '@types';
 import { useCreateEmployee } from '@services';
 import { useReducerCRUD } from '@hooks';
+import computeErrorFromQuery from '@utils';
 
-import computeErrorFromQuery from 'src/utils';
 import styles from './Modal.module.css';
 
 /**
- * Component for creating a new employee via a validated form
+ * Component that allows users to create a new employee by filling out a form and submitting it father validation
  * Libraries:
- *  - 'Formik' for building
- *  - 'Yup' for validation
+ *  - 'Formik' and Yup for form handling and validation.
  *  - 'Material UI' for design, select and date-picker
- *  - 'react-modal-simple-customizable' for showing server response of creation in a modal
+ *  - 'react-modal-simple-customizable' for showing server response in a modal
  * @component
- * @returns Form to create new employee, send it to the server for saving and display the server response
+ * @returns {JSX.Element} - Create employee form
  */
 function CreateEmployeeForm() {
   const navigate = useNavigate();

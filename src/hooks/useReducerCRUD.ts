@@ -1,41 +1,26 @@
-import { Employee } from '@types';
 import { useReducer } from 'react';
 
-interface StateCRUD {
-  showModalCreate: boolean;
-  showModalUpdate: boolean;
-  showModalDelete: boolean;
-  showModalResult: boolean;
-  result: {
-    type: 'CREATE' | 'UPDATE' | 'DELETE' | undefined;
-    error: string | undefined;
-  } | null;
-  rowUpdateData: {
-    oldRow: Employee | undefined;
-    newRow: Employee | undefined;
-    resolve:
-      | ((value: Employee | PromiseLike<Employee>) => void | undefined)
-      | undefined;
-    reject: ((reason?: unknown) => void | undefined) | undefined;
-  } | null;
-  rowDeleteId: string | null | undefined;
-}
+import { ActionCRUD, StateCRUD } from '@types';
 
-export interface ActionCRUD {
-  type:
-    | 'CANCEL'
-    | 'CONFIRM_UPDATE'
-    | 'CONFIRM_DELETE'
-    | 'CONFIRM_CREATE'
-    | 'SHOW_RESULT'
-    | 'INIT';
-  payload?: {
-    result: StateCRUD['result'];
-    rowUpdateData: StateCRUD['rowUpdateData'];
-    rowDeleteId: StateCRUD['rowDeleteId'];
-  };
-}
-
+/**
+ * A hook to handle CRUD (create, read, update, delete) actions and corresponding modal displays.
+ *
+ * Returns an object with the current CRUD state, and a dispatch function to update it.
+ * @returns {{stateCRUD: StateCRUD, dispatchCRUD: (state: StateCRUD, action: ActionCRUD) => StateCRUD}}
+ *
+ * @typedef {Object} StateCRUD
+ * @property {boolean} showModalCreate - Determines whether the create modal should be displayed
+ * @property {boolean} showModalUpdate - Determines whether the update modal should be displayed
+ * @property {boolean} showModalDelete - Determines whether the delete modal should be displayed
+ * @property {boolean} showModalResult - Determines whether the result modal should be displayed
+ * @property {Object} result - The result of a CRUD action, containing type and error properties.
+ * @property {Object} rowUpdateData - The data to be updated, including old and new rows, and resolve and  reject functions.
+ * @property {string} rowDeleteId - The id of the row to be deleted.
+ *
+ * @typedef {Object} ActionCRUD
+ * @property {string} type - The type of CRUD action to be performed, can be one of: 'INIT', 'CANCEL', 'CONFIRM_CREATE', 'CONFIRM_UPDATE', 'CONFIRM_DELETE', 'SHOW_RESULT'.
+ * @property {Object} payload - Additional data to be passed along with the action, such as rowUpdateData or * rowDeleteId.
+ */
 const useReducerCRUD = () => {
   const initialState: StateCRUD = {
     showModalCreate: false,

@@ -1,10 +1,11 @@
-import { EmployeesTable } from '@components';
 import { Link } from 'react-router-dom';
 
+import { EmployeesTable } from '@components';
+
 /**
- * Display the page showing table of employees
+ * Display the page showing the table of employees
  * @component
- * @returns employee list page
+ * @return {React.ReactElement} A JSX representation of the employee list page
  */
 function EmployeeList() {
   return (

@@ -22,8 +22,7 @@ import {
   useGridSelector,
 } from '@mui/x-data-grid';
 
-import { Employee } from '@types';
-import { ActionCRUD } from 'src/hooks/useReducerCRUD';
+import { Employee, ActionCRUD } from '@types';
 import { COLUMNS } from '../utils';
 
 /**
@@ -89,13 +88,10 @@ export function useCRUDactionsColumn(dispatchCRUD: Dispatch<ActionCRUD>) {
       if (typeof id === 'number') {
         throw new Error('ID of deleted employee should be of type string');
       }
-      // setDeleteId(id);
-      // setShowModalDelete(true);
-      // dispatchCRUD({ type: 'SHOW_DELETE' });
       dispatchCRUD({
         type: 'CONFIRM_DELETE',
         payload: {
-          result: { type: 'DELETE', error: undefined },
+          result: null,
           rowUpdateData: null,
           rowDeleteId: id,
         },
