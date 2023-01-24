@@ -1,12 +1,12 @@
 # HRnet
 
-[!typescript]
+![typescript]
 ![reactjs]
-[reactrouter]
-[html]
-[css]
-[eslint]
-[prettier]
+![reactrouter]
+![html]
+![css]
+![eslint]
+![prettier]
 
 Welcome to HRnet! This is our company's internal application to create and view employee records.
 
