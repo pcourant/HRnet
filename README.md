@@ -1,7 +1,7 @@
 # HRnet
 
-[typescript]
-[reactjs]
+[!typescript]
+![reactjs]
 [reactrouter]
 [html]
 [css]
