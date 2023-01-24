@@ -10,8 +10,6 @@ Welcome to HRnet! This is our company's internal application to create and view 
 [eslint]: https://img.shields.io/badge/eslint-3A33D1?style=for-the-badge&logo=eslint&logoColor=white
 [prettier]: https://img.shields.io/badge/prettier-1A2C34?style=for-the-badge&logo=prettier&logoColor=F7BA3E
 
-It is simple React modal dialog which can be fully and easily customized
-
 [**HRnet Live**](https://pcourant.github.io/PierreCourant_14_14112022/)
 
 ## Prerequisites:
@@ -39,6 +37,31 @@ pnpm build && pnpm preview
 ```
 
 Finally, open a tab on your local browser to the URL given by Vite
+
+## Performance testing
+
+Before testing performance you'll need to deactivate the mocking server.
+
+In,
+
+```bash
+/src/main.tsx
+
+```
+
+Change :
+
+```javascript
+if (import.meta.env.MODE === 'production')
+  import('./MockServer').then((MockServer) => MockServer.default());
+```
+
+TO
+
+```javascript
+//if (import.meta.env.MODE === 'production')
+//  import('./MockServer').then((MockServer) => MockServer.default());
+```
 
 ## Author
 
