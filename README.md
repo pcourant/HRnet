@@ -47,7 +47,6 @@ In,
 
 ```bash
 /src/main.tsx
-
 ```
 
 Change :
@@ -62,6 +61,12 @@ TO
 ```javascript
 //if (import.meta.env.MODE === 'production')
 //  import('./MockServer').then((MockServer) => MockServer.default());
+```
+
+And build it:
+
+```bash
+pnpm build && pnpm preview
 ```
 
 ## Author
