@@ -37,7 +37,7 @@ or
 pnpm build && pnpm preview
 ```
 
-Finally, open a tab on your local browser to the URL given by Vite
+Finally, open a tab on your local browser to the URL given by Vite, usually : http://localhost:5173/PierreCourant_14_14112022/
 
 ## Performance testing
 
@@ -56,18 +56,20 @@ if (import.meta.env.MODE === 'production')
   import('./MockServer').then((MockServer) => MockServer.default());
 ```
 
-TO
+To
 
 ```javascript
 //if (import.meta.env.MODE === 'production')
 //  import('./MockServer').then((MockServer) => MockServer.default());
 ```
 
-And build it:
+And rebuild it:
 
 ```bash
 pnpm build && pnpm preview
 ```
+
+Finally, open a tab on your local browser to the URL given by Vite, usually : http://localhost:4173/PierreCourant_14_14112022/
 
 ## Author
 
