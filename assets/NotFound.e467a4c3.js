@@ -1,0 +1,1 @@
+import{j as n,F as o,a as r,L as t}from"./index.808a29f4.js";function a(){return n(o,{children:[r("h1",{children:"404 Error"}),r("h1",{children:"Not Found"}),r(t,{to:"/HRnet/",children:"GO HOME"})]})}export{a as default};
