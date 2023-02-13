@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "type": "module",
-  "homepage": "https://pcourant.github.io/PierreCourant_14_14112022",
+  "homepage": "https://pcourant.github.io/HRnet",
   "description": "This is our company's internal application to create and view employee records.",
   "scripts": {
     "dev": "vite",

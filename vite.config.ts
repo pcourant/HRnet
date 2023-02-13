@@ -6,6 +6,6 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: `/PierreCourant_14_14112022/`,
+  base: `/HRnet/`,
   plugins: [react(), tsconfigPaths()],
 });
