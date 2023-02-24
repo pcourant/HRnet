@@ -11,7 +11,7 @@
 
 Welcome to HRnet! This is our company's internal application to create and view employee records.
 
-[**HRnet Live**](https://pcourant.github.io/HRnet/)
+[**HRnet Live**](https://pcourant.github.io/PierreCourant_14_14112022/)
 
 ## Prerequisites:
 
@@ -20,7 +20,7 @@ Welcome to HRnet! This is our company's internal application to create and view 
 ## Installation:
 
 ```bash
-git clone https://github.com/pcourant/HRnet.git hrnet
+git clone https://github.com/pcourant/PierreCourant_14_14112022.git hrnet
 cd hrnet
 pnpm install
 ```
@@ -37,7 +37,7 @@ or
 pnpm build && pnpm preview
 ```
 
-Finally, open a tab on your local browser to the URL given by Vite, usually : http://localhost:5173/HRnet/
+Finally, open a tab on your local browser to the URL given by Vite, usually : http://localhost:5173/PierreCourant_14_14112022/
 
 ## Performance testing
 
@@ -69,7 +69,7 @@ And rebuild it:
 pnpm build && pnpm preview
 ```
 
-Finally, open a tab on your local browser to the URL given by Vite, usually : http://localhost:4173/HRnet/
+Finally, open a tab on your local browser to the URL given by Vite, usually : http://localhost:4173/PierreCourant_14_14112022/
 
 ## Author
 
